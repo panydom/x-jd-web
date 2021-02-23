@@ -18,6 +18,14 @@ module.exports = appInfo => {
 
   // add your middleware config here
   config.middleware = [];
+  config.security = {
+    csrf: {
+      headerName: 'x-csrf-token',
+      // useSession: true,
+      // cookieName: 'csrfToken',
+      // sessionName: 'csrfToken',
+    },
+  };
 
   // add your user config here
   const userConfig = {

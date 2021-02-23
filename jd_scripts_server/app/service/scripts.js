@@ -6,7 +6,7 @@ const fs = require('fs');
 const execa = require('execa');
 const readline = require('readline');
 const dotenv = require('dotenv');
-const markdown = require('markdown').markdown;
+const Writeable = require('stream').Writable;
 const Response = require('../common/Response.js');
 
 class ScriptsService extends Service {
@@ -68,10 +68,14 @@ class ScriptsService extends Service {
 
   async getEnvFile() {
     const { config } = this;
-    // const envFile = await this.service.scripts.readFile(path.join(config.scriptsDir, 'githubAction.md'));
-    const file = fs.readFileSync(path.join(config.scriptsDir, 'githubAction.md'), 'utf8');
-    const data = markdown.toHTML(file);
+    const envFilePath = path.join(config.baseDir, 'env.json');
+    const data = require(envFilePath);
     return new Response(data);
+  }
+
+  async postEnvFile(data) {
+    await this.service.users.writeEnvFile(data);
+    return new Response(true);
   }
 
   async getTask() {
@@ -121,6 +125,30 @@ class ScriptsService extends Service {
     }
     this.app.taskList = tasks;
     return this.service.scripts.getTask();
+  }
+
+  // 获取日志
+  getLog(id) {
+    const logFile = path.join(this.config.baseDir, `scripts/logs/${id}.log`);
+    let content = '';
+    return new Promise(resolve => {
+      if (fs.existsSync(logFile)) {
+        const writeStream = new Writeable({
+          write(chunk, encoding, cb) {
+            content += chunk.toString();
+            cb();
+          },
+        });
+        const shell = execa('tail', [ '-n', '100', logFile ]);
+        shell.stdout.pipe(writeStream);
+        shell.stdout.on('close', () => {
+          resolve(content);
+        });
+      } else {
+        resolve(content);
+      }
+    }).then(data => new Response(data));
+
   }
 
 }

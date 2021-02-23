@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useCallback} from 'react';
-import { Table } from 'antd';
+import React, { useState, useMemo, useCallback,useEffect, useRef } from 'react';
+import { Table, Tooltip } from 'antd';
 import { PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons';
 import request from '@/request'
 import Layout from '@/layouts'
 import { useDidMount } from '@/hooks';
 import { Link } from '@/components';
 import styles from './index.less';
+import Log from './Log';
 
 export default function Scripts () {
   const [data, setData] = useState([]);
@@ -13,10 +14,30 @@ export default function Scripts () {
 
   // 获取任务列表
   const [taskList, setTaskList] = useState([] as any[]);
+  const timer = useRef<NodeJS.Timeout>();
   const getTaskList = useCallback(async () => {
    const { data } = await request.get('/task')
    setTaskList(data)
   }, []);
+
+  // 轮训查任务列表
+  const lookTask = useCallback(() => {
+    timer.current = setTimeout(() => {
+      getTaskList();
+      lookTask()
+    }, 2000);
+  }, []);
+
+  // 任务执行，开启定时器
+  useEffect(() => {
+    // 有任务
+    if(taskList.length && !timer.current) {
+      lookTask();
+    }else if (!taskList.length && timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null as unknown as NodeJS.Timeout;
+    }
+  }, [taskList]);
 
   // 运行脚本
   const runScript = useCallback(async (scriptName, run = true) => {
@@ -36,11 +57,16 @@ export default function Scripts () {
       <>
         {
           running ? (
-            <PauseCircleFilled className={styles.icon} onClick={() => runScript(filename, false)} />
+            <Tooltip title='停止运行'>
+              <PauseCircleFilled className={styles.icon} onClick={() => runScript(filename, false)} />
+            </Tooltip>
           ) :(
-            <PlayCircleFilled className={styles.icon} onClick={() => runScript(filename)} />
+            <Tooltip title='运行脚本'>
+              <PlayCircleFilled className={styles.icon} onClick={() => runScript(filename)} />
+            </Tooltip>
           )
         }
+        <Log className={styles.icon} id={filename} running={running} />
       </>
     )
   }, [taskList]);

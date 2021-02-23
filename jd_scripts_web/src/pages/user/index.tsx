@@ -1,9 +1,10 @@
 import  React,{ useCallback, useState, useMemo } from 'react';
+import { DeleteFilled } from '@ant-design/icons';
 import request from '@/request';
 import Layout from '@/layouts';
 import { useDidMount } from '@/hooks';
 import { Link } from '@/components';
-import { Button, Modal, Table, Input, message, Alert } from 'antd'
+import { Button, Modal, Table, Input, message, Alert, Tooltip } from 'antd'
 import QRCode from 'qrcode.react';
 import styles from './index.less'
 
@@ -15,6 +16,7 @@ export default function User(){
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
+  // const [cookie, setCookie] = useState('pt_key=AAJgMyZ5ADDHo4PfBu9A_osAsrUPvtn5626C_-4YNdZuP01b8YxyJyPFd18Vquq0JWMTkJi3wZs;pt_pin=15108447254_p;');
   const [cookie, setCookie] = useState('');
   const [addVisible, setAddVisible] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
@@ -76,7 +78,7 @@ export default function User(){
 
   // 提交Cookie
   const onAddCookie = useCallback(async () => {
-    if(!/pt_key=(.*?);pt_pin=(.*?);/.test(cookie)){
+    if(!/(pt_key=(.*?);pt_pin=(.*?);)+/.test(cookie)){
       message.error("Cookie格式不正确")
       return;
     }
@@ -88,11 +90,40 @@ export default function User(){
         }
       })
       setAddVisible(false);
+      getUserList();
     }
     finally{
       setAddLoading(false);
     }
   }, [cookie]);
+
+  // 删除用户
+  const deleteUser = useCallback(async (userName: string) => {
+    try{
+      await request.delete('/user', {
+        params:{
+          userName
+        }
+      })
+      getUserList()
+      message.success("删除成功");
+    }
+    catch(e){
+      message.error("操作失败")
+    }
+    
+  }, []);
+
+  const renderButton = useCallback((text: string, record) => {
+    const { userName } = record;
+    return (
+      <>
+      <Tooltip title="删除">
+        <DeleteFilled className={styles.icon} onClick={()=> deleteUser(userName)} />
+      </Tooltip>
+      </>
+    )
+  }, []);
 
   const columns = useMemo(() => {
     return [
@@ -111,9 +142,10 @@ export default function User(){
       {
         title: "操作",
         dataIndex: 'op',
+        render: renderButton,
       }
     ]
-  }, [])
+  }, [renderButton])
   return (
     <Layout>
       <div className={styles.head}>
@@ -149,8 +181,8 @@ export default function User(){
           okText="确认"
           cancelText="取消"
         >
-          <Alert message="格式：`pt_key=XXX;pt_pin=XXX;`" type="info" showIcon />
-          <Input.TextArea style={{width: '100%', marginTop: 12}} rows={4} value={cookie} onChange={onCookie} />
+          <Alert message={<>格式：`pt_key=XXX;pt_pin=XXX;`<br />多个cookie用`&`分割</>} type="info" showIcon />
+          <Input.TextArea style={{width: '100%', marginTop: 12}} rows={5} value={cookie} onChange={onCookie} />
         </Modal>
     </Layout>
   )

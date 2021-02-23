@@ -8,16 +8,32 @@ const Writeable = require('stream').Writable;
 const Response = require('../common/Response.js');
 const { buildEnv } = require('../common/utils.js');
 
-
 class UserService extends Service {
+
+  get jsonfile() {
+    return path.join(this.config.baseDir, 'env.json');
+  }
+
+  writeEnvFile(data) {
+    return new Promise(resolve => {
+      fs.writeFile(this.jsonfile, JSON.stringify(data, null, ' '), () => {
+        buildEnv(data);
+        resolve();
+      });
+    });
+
+  }
+
   async getUsers() {
-    const file = path.join(this.config.baseDir, 'env.json');
-    const envFile = require(file);
+    const envFile = require(this.jsonfile);
     return new Response(envFile[0].fields[0].value);
   }
   // 获取登陆二维码
   // 调用getJDCookie.js
   getJDCookie() {
+    if (this.app.getJDCookieProcess) {
+      return new Response('', 1, '当前正在扫码');
+    }
     const { config } = this;
     const file = path.join(config.scriptsDir, 'getJDCookie.js');
     const writeCookie = this.service.users.writeCookie;
@@ -51,9 +67,8 @@ class UserService extends Service {
     return new Response(true);
   }
 
-  writeCookie(cookie) {
-    const file = path.join(this.config.baseDir, 'env.json');
-    const envFile = require(file);
+  async writeCookie(cookie) {
+    const envFile = require(this.jsonfile);
     const match = cookie.match(/pt_key=(.*?);pt_pin=(.*?);/);
     if (match) {
       const [ cookie, pt_key, pt_pin ] = match;
@@ -78,19 +93,36 @@ class UserService extends Service {
         }
       }
       envFile[0].fields[0].value = users;
-      fs.writeFile(file, JSON.stringify(envFile, null, ' '), () => {
-        buildEnv();
-        console.log('Cookie写入成功');
-      });
+      await this.writeEnvFile(envFile);
     }
   }
 
   async addCookie(cookie) {
+    let cookies = cookie;
     if (cookie) {
-      this.service.users.writeCookie(cookie);
+      cookies = cookie.split('&');
+      for await (const cookie of cookies) {
+        await this.service.users.writeCookie(cookie);
+      }
       return new Response(true);
     }
     return new Response(false);
+  }
+
+  // 删除
+  async deleteUser(userName) {
+    const envFile = require(this.jsonfile);
+    const users = envFile[0].fields[0].value;
+    const newUsers = users.reduce((list, user) => {
+      if (user.userName !== userName) {
+        list.push(user);
+      }
+      return list;
+    }, []);
+    envFile[0].fields[0].value = newUsers;
+    await this.writeEnvFile(envFile);
+
+    return new Response(true);
   }
 }
 

@@ -10,8 +10,7 @@
     "dotenv": "^8.2.0",
     "egg": "^2.15.1",
     "egg-scripts": "^2.11.0",
-    "execa": "^5.0.0",
-    "markdown": "^0.5.0"
+    "execa": "^5.0.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",

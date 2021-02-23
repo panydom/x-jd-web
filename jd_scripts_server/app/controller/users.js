@@ -20,6 +20,11 @@ class UserController extends Controller {
   async cancelQrCode() {
     this.ctx.body = await this.service.users.cancelGetJDCookie();
   }
+
+  async deleteUser() {
+    const { userName } = this.ctx.query;
+    this.ctx.body = await this.service.users.deleteUser(userName);
+  }
 }
 
 module.exports = UserController;

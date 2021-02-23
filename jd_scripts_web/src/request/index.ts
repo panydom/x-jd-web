@@ -4,6 +4,20 @@ const devPrefix = '/dev'
 
 const instance = extend({
   prefix: `${devPrefix}/api`,
+  credentials: 'include',
+})
+
+instance.interceptors.request.use((url, config) => {
+  const match = document.cookie.match(/csrfToken=(.*?)(;|$)/)
+  if(match) {
+    config.headers = config.headers || {};
+    // @ts-ignore
+    config.headers['x-csrf-token'] = match[1];
+  }
+  return {
+    url,
+    config,
+  }
 })
 
 instance.interceptors.response.use(async (response, options) => {

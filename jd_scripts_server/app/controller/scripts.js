@@ -17,6 +17,10 @@ class ScriptsController extends Controller {
   async getEnvFile() {
     this.ctx.body = await this.service.scripts.getEnvFile();
   }
+  async postEnvFile() {
+    const data = this.ctx.request.body;
+    this.ctx.body = await this.service.scripts.postEnvFile(data);
+  }
 
   async task() {
     this.ctx.body = await this.service.scripts.getTask();
@@ -24,6 +28,12 @@ class ScriptsController extends Controller {
   async runScript() {
     const { scriptName, run } = this.ctx.query;
     this.ctx.body = await this.service.scripts.runScript(scriptName, booleanMap.get(run));
+  }
+
+  // 获取日志
+  async getLog() {
+    const { id } = this.ctx.query;
+    this.ctx.body = await this.service.scripts.getLog(id);
   }
 
 }
