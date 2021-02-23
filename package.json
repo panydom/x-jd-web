@@ -1,0 +1,26 @@
+{
+  "name": "test-jd",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "update": "./scripts/update.sh",
+    "postinstall": "./scripts/postinstall.sh",
+    "dev": "./scripts/dev.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "egg": {
+    "declarations": true
+  },
+  "dependencies": {
+    "LXK9301": "git+https://gitee.com/lxk0301/jd_scripts#master"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "ci": {
+    "version": "10"
+  }
+}
