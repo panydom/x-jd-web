@@ -32,10 +32,12 @@ class CronService extends Service {
   // 创建cron.json文件
   createCronJson(list, cronList) {
     return new Promise(resolve => {
-      const cronJson = list.reduce((list, { filename }) => {
+      const cronJson = list.reduce((list, { filename, title, index  }) => {
         const cron = cronList.find(line => line.includes(filename));
         if (cron && !cron.startsWith('#')) {
           list.push({
+            index,
+            title,
             filename,
             cron: cron.split(/\s/g).slice(0, 5).join(' '),
           });
@@ -51,8 +53,10 @@ class CronService extends Service {
   // 生成app/schedule脚本列表
   async createSchedule(data) {
     const schedulePath = path.join(this.app.baseDir, 'app', 'schedule');
+    if(!fs.existsSync(schedulePath)) fs.mkdirSync(schedulePath);
     for (const { filename, cron } of data.slice(0, 1)) {
       if (!fs.existsSync(path.join(schedulePath, `auto_${filename}`))) {
+        console.log('create', filename)
         fs.writeFile(
           path.join(schedulePath, `auto_${filename}`),
           `'use strict';
