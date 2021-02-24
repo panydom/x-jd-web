@@ -32,8 +32,8 @@ class ScriptsController extends Controller {
 
   // 获取日志
   async getLog() {
-    const { id } = this.ctx.query;
-    this.ctx.body = await this.service.scripts.getLog(id);
+    const { id, lineNumber } = this.ctx.query;
+    this.ctx.body = await this.service.scripts.getLog(id, lineNumber);
   }
 
 }

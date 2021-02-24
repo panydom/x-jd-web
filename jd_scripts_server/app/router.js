@@ -29,4 +29,7 @@ module.exports = app => {
   router.get('/api/showQrCode', controller.users.getQrCode);
   // 取消获取二维码
   router.get('/api/cancelQrCode', controller.users.cancelQrCode);
+
+  // 定时任务
+  router.get('/api/cron/file', controller.cron.file);
 };

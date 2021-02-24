@@ -70,6 +70,7 @@ class ScriptsService extends Service {
     const { config } = this;
     const envFilePath = path.join(config.baseDir, 'env.json');
     const data = require(envFilePath);
+    delete require.cache[require.resolve(envFilePath)];
     return new Response(data);
   }
 
@@ -78,6 +79,9 @@ class ScriptsService extends Service {
     return new Response(true);
   }
 
+  /**
+   * 获取运行中的脚本
+   */
   async getTask() {
     const taskName = (this.app.taskList || []).map(({ scriptName }) => scriptName);
     return new Response(taskName);
@@ -100,17 +104,18 @@ class ScriptsService extends Service {
   }
 
   // 运行任务
-  async runScript(scriptName, run) {
+  async runScript(scriptName, run = true) {
     let tasks = this.app.taskList || [];
     if (run) {
       const file = path.join(this.config.scriptsDir, scriptName);
-      const logFile = path.join(this.config.baseDir, `scripts/logs/${scriptName}.log`);
+      const logFile = path.join(this.config.SCRIPTS_LOGS, `${scriptName}.log`);
       const envFile = path.join(this.config.baseDir, '.env');
       const { parsed = {} } = dotenv.config({
         path: envFile,
       });
       const shell = execa('node', [ file ], {
         env: parsed,
+        cwd: this.config.scriptsDir,
       });
       shell.stdout.on('end', () => {
         this.app.taskList = this.service.scripts.deleteTask(scriptName);
@@ -128,8 +133,8 @@ class ScriptsService extends Service {
   }
 
   // 获取日志
-  getLog(id) {
-    const logFile = path.join(this.config.baseDir, `scripts/logs/${id}.log`);
+  getLog(id, lineNumber = '100') {
+    const logFile = path.join(this.config.SCRIPTS_LOGS, `${id}.log`);
     let content = '';
     return new Promise(resolve => {
       if (fs.existsSync(logFile)) {
@@ -139,7 +144,12 @@ class ScriptsService extends Service {
             cb();
           },
         });
-        const shell = execa('tail', [ '-n', '100', logFile ]);
+        let shell;
+        if (lineNumber === '0') {
+          shell = execa('cat', [ logFile ]);
+        } else {
+          shell = execa('tail', [ '-n', lineNumber, logFile ]);
+        }
         shell.stdout.pipe(writeStream);
         shell.stdout.on('close', () => {
           resolve(content);

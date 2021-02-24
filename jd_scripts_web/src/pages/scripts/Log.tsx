@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import { FileTextFilled } from '@ant-design/icons';
 import { Modal, Tooltip } from 'antd';
 import request from '@/request'
@@ -16,10 +16,12 @@ export default function Log(props: LogProps) {
   const timer = useRef<NodeJS.Timeout>();
   const lastVisible = useRef(false);
   const lastRunning = useRef(false);
+  const logRef = useRef<HTMLPreElement>(null);
   const getLog = useCallback(async () => {
     const {data} = await request.get('/getLog', {
       params:{
         id,
+        lineNumber: id === 'jd_bean_sign.js' ? 0 : 100 
       }
     });
 
@@ -62,6 +64,13 @@ export default function Log(props: LogProps) {
     
   }, [running, visible]);
 
+  useLayoutEffect(()=>{
+    const dom = logRef.current
+    if(dom) {
+      dom.scrollTop = dom.scrollHeight - dom.clientHeight;
+    }
+  })
+
   const onClose = useCallback(() => {
     setVisible(false)
   }, []);
@@ -76,7 +85,7 @@ export default function Log(props: LogProps) {
         <FileTextFilled className={props.className} onClick={showLog}/>
       </Tooltip>
       <Modal title={id} visible={visible} onOk={onClose} onCancel={onClose} okText="知道了" cancelText="关闭" width="80vw">
-        <pre style={{height: '60vh'}}>{log}</pre>
+        <pre style={{height: '60vh'}} ref={logRef}>{log}</pre>
       </Modal>
     </>
   )

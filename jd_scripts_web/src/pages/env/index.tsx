@@ -40,7 +40,6 @@ export default function Env(){
   }, []);
 
   const onChange = useCallback((type, index, value) => {
-    console.log('type, index, value :>> ', type, index, value);
     setData(([...originData]) => {
       originData[type].fields[index].value = value;
       postFile(originData)
@@ -83,8 +82,8 @@ export default function Env(){
             )
           }
           return (
-            <Col xs={12}>
-              <div className={styles.item} key={index}>
+            <Col xs={12} key={index}>
+              <div className={styles.item}>
                 <div className={styles.label}>
                   <span className={styles.title}>{title}</span>
                   {summary? <Tooltip title={summary}><QuestionCircleOutlined className={styles.summary} /></Tooltip> : null}

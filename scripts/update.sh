@@ -2,10 +2,10 @@
 
 # 更新jd_scripts
 
-# npm i git+https://gitee.com/lxk0301/jd_scripts#master
+# npm i git+https://gitee.com/zixing/jd_scripts.git#master
 ROOT_DIR=$(pwd)
 SCRIPTS_PACKAGE_NAME=LXK9301
-SCRIPTS_GIT_URL=git+https://gitee.com/lxk0301/jd_scripts#master
+SCRIPTS_GIT_URL=git+https://gitee.com/zixing/jd_scripts.git#master
 NODE_MODULES_DIR=${ROOT_DIR}/node_modules
 if [ ! -e $NODE_MODULES_DIR ]
 then
@@ -24,4 +24,4 @@ else
   npm i $SCRIPTS_GIT_URL
 fi
 
-wget https://gitee.com/lxk0301/jd_scripts/raw/master/jdCookie.js -O $SCRIPTS_WORKSPACE/jdCookie.js
+wget https://gitee.com/zixing/jd_scripts.git/raw/master/jdCookie.js -O $SCRIPTS_WORKSPACE/jdCookie.js

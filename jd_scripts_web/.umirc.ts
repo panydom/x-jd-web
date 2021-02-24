@@ -26,6 +26,11 @@ export default defineConfig({
       name: '环境变量',
       component: '@/pages/env'
     },
+    {
+      path: '/cron',
+      name: '定时任务',
+      component: '@/pages/cron'
+    },
   ],
   fastRefresh: {},
   favicon: '/logo.svg',

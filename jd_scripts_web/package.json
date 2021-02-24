@@ -23,6 +23,7 @@
     "@ant-design/pro-layout": "^6.14.0",
     "@umijs/preset-react": "1.x",
     "qrcode.react": "^1.0.1",
+    "react-json-editor-ajrm": "^2.5.13",
     "umi": "^3.3.7"
   },
   "devDependencies": {

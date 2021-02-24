@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback,useEffect, useRef } from 'react';
-import { Table, Tooltip } from 'antd';
+import { Table, Tooltip, message, Button } from 'antd';
 import { PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons';
 import request from '@/request'
 import Layout from '@/layouts'
@@ -41,6 +41,10 @@ export default function Scripts () {
 
   // 运行脚本
   const runScript = useCallback(async (scriptName, run = true) => {
+    if(taskList.length >=5){
+      message.warning("暂定最多同时运行5个脚本")
+      return;
+    }
     const { data: task } = await request.get('/runScript', {
       params:{
         scriptName,
@@ -48,7 +52,7 @@ export default function Scripts () {
       }
     })
     setTaskList(task);
-  }, []);
+  }, [taskList]);
 
   const renderOp = useCallback((text, record, index) => {
     const { filename } = record;
@@ -69,6 +73,12 @@ export default function Scripts () {
         <Log className={styles.icon} id={filename} running={running} />
       </>
     )
+  }, [taskList, runScript]);
+
+  const rowClassName = useCallback((record, index) => {
+    const { filename } = record;
+    const running = taskList.includes(filename);
+    return running ? styles.running : ''
   }, [taskList]);
 
   const columns = useMemo(() => {
@@ -120,7 +130,8 @@ export default function Scripts () {
   });
   return (
     <Layout>
-      <Table columns={columns} dataSource={data} rowKey='filename' bordered pagination={false} loading={loading} />
+      <p>当前有{taskList.length}个运行中的脚本（{taskList.map(t => <Button key={t} type="link">{t}</Button>)}）</p>
+      <Table columns={columns} dataSource={data} rowKey='filename' bordered pagination={false} loading={loading} rowClassName={rowClassName} />
     </Layout>
   )
 }
