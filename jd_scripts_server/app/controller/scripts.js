@@ -36,6 +36,17 @@ class ScriptsController extends Controller {
     this.ctx.body = await this.service.scripts.getLog(id, lineNumber);
   }
 
+  // 删除所有日志
+  async deleteLogs() {
+    this.ctx.body = await this.service.scripts.deleteLogs();
+  }
+
+  // 文件内容
+  async content() {
+    const { filename } = this.ctx.params;
+    this.ctx.body = await this.service.scripts.content(filename);
+  }
+
 }
 
 module.exports = ScriptsController;

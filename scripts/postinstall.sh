@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-./update
+./scripts/update.sh
 
 cd ./jd_scripts_web
 

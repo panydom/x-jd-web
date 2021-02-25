@@ -6,7 +6,8 @@
 module.exports = app => {
   const { router, controller } = app;
   router.get('/api/list', controller.scripts.list);
-
+  // 查看脚本内容
+  router.get('/api/script/:filename', controller.scripts.content);
   // 获取环境变量文件内容
   router.get('/api/envFile', controller.scripts.getEnvFile);
   router.post('/api/envFile', controller.scripts.postEnvFile);
@@ -16,6 +17,7 @@ module.exports = app => {
   router.get('/api/runScript', controller.scripts.runScript);
   // 查看日志
   router.get('/api/getLog', controller.scripts.getLog);
+  router.delete('/api/logs', controller.scripts.deleteLogs);
 
 
   // 获取用户列表
@@ -32,4 +34,5 @@ module.exports = app => {
 
   // 定时任务
   router.get('/api/cron/file', controller.cron.file);
+  router.post('/api/cron/file', controller.cron.saveFile);
 };

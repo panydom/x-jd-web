@@ -4,10 +4,24 @@ const Service = require('egg').Service;
 const path = require('path');
 const fs = require('fs');
 const Response = require('../common/Response.js');
-
+const { requireJSON } = require('../common/utils');
+const BaseCron = require('../common/baseCron.js');
+const CRON_INSTANCE = Symbol('CRON_INSTANCE');
 class CronService extends Service {
   get customCronFile() {
     return path.join(this.app.baseDir, 'cron.json');
+  }
+
+  /**
+   * 写入数据
+   * @param {object} data 数据
+   */
+  saveFile(data) {
+    return new Promise(resolve => {
+      fs.writeFile(this.customCronFile, JSON.stringify(data, null, ' '), async () => {
+        resolve(data);
+      });
+    });
   }
 
   async initCron() {
@@ -21,79 +35,95 @@ class CronService extends Service {
       const data = await this.createCronJson(list, cronList);
       await this.createSchedule(data);
     } else {
-      const data = require(customCronFile);
+      const data = requireJSON(customCronFile);
       await this.createSchedule(data);
-      // 删除缓存
-      delete require.cache[require.resolve(customCronFile)];
-
     }
   }
 
   // 创建cron.json文件
   createCronJson(list, cronList) {
-    return new Promise(resolve => {
-      const cronJson = list.reduce((list, { filename, title, index  }) => {
-        const cron = cronList.find(line => line.includes(filename));
-        if (cron && !cron.startsWith('#')) {
-          list.push({
-            index,
-            title,
-            filename,
-            cron: cron.split(/\s/g).slice(0, 5).join(' '),
-          });
-        }
-        return list;
-      }, []);
-      fs.writeFile(this.customCronFile, JSON.stringify(cronJson, null, ' '), async () => {
-        resolve(cronJson);
-      });
-    });
+    const cronJson = list.reduce((list, { filename, title, index }) => {
+      const cron = cronList.find(line => line.includes(filename));
+      if (cron && !cron.startsWith('#')) {
+        list.push({
+          index,
+          title,
+          filename,
+          cron: cron.split(/\s/g).slice(0, 5).join(' '),
+        });
+      }
+      return list;
+    }, []);
+    return this.saveFile(cronJson);
   }
 
   // 生成app/schedule脚本列表
   async createSchedule(data) {
-    const schedulePath = path.join(this.app.baseDir, 'app', 'schedule');
-    if(!fs.existsSync(schedulePath)) fs.mkdirSync(schedulePath);
-    for (const { filename, cron } of data.slice(0, 1)) {
-      if (!fs.existsSync(path.join(schedulePath, `auto_${filename}`))) {
-        console.log('create', filename)
-        fs.writeFile(
-          path.join(schedulePath, `auto_${filename}`),
-          `'use strict';
+    // const schedulePath = path.join(this.app.baseDir, 'app', 'schedule');
+    // if (!fs.existsSync(schedulePath)) fs.mkdirSync(schedulePath);
+    //     for (const { filename, cron } of data.slice(0, 1)) {
+    //       if (!fs.existsSync(path.join(schedulePath, `auto_${filename}`)) || force) {
+    //         fs.writeFile(
+    //           path.join(schedulePath, `auto_${filename}`),
+    //           `'use strict';
 
-const path = require('path');
+    // const path = require('path');
+    // const { requireJSON } = require('../common/utils');
 
-module.exports = app => {
-  const customCronFile = path.join(app.baseDir, 'cron.json');
-  const cronList = require(customCronFile);
-  const { cron } = cronList.find(cronConfig => cronConfig.filename === '${filename}');
-  delete require.cache[require.resolve(customCronFile)];
+    // module.exports = app => {
+    //   const customCronFile = path.join(app.baseDir, 'cron.json');
+    //   const cronList = requireJSON(customCronFile);
+    //   const { cron } = cronList.find(cronConfig => cronConfig.filename === '${filename}');
 
-  return {
-    schedule: {
-      cron: cron, // ${cron}
-      type: 'worker',
-      immediate: true,
-    },
-    async task(ctx) {
-      console.log('开始执行${filename}');
-      ctx.service.scripts.runScript('${filename}', true);
-    },
-  };
-};
-`,
-          'utf8',
-          () => {
-            // console.log(`${filename}文件写入成功`);
-          });
+    //   return {
+    //     schedule: {
+    //       cron, // ${cron}
+    //       type: 'worker',
+    //       immediate: true,
+    //     },
+    //     async task(ctx) {
+    //       console.log('开始执行${filename}');
+    //       ctx.service.scripts.runScript('${filename}', true);
+    //     },
+    //   };
+    // };
+    // `,
+    //           'utf8',
+    //           () => {
+    //             // console.log(`${filename}文件写入成功`);
+    //           });
+    //       }
+    //     }
+    const latestCron = this.app[CRON_INSTANCE];
+    if (latestCron && latestCron.length) {
+      for (const cron of latestCron) {
+        cron.stop();
       }
+      this.app[CRON_INSTANCE].length = 0;
     }
+    const crons = [];
+    for (const { filename, cron } of data.slice(1, 2)) {
+      crons.push(new BaseCron(filename, cron, this.ctx));
+    }
+    this.app[CRON_INSTANCE] = crons;
   }
 
+  /**
+   * 获取文件
+   */
   async file() {
-    const data = require(this.customCronFile);
-    delete require.cache[require.resolve(this.customCronFile)];
+    const data = requireJSON(this.customCronFile);
     return new Response(data);
+  }
+
+  /**
+   * 保存文件
+   * @param {object} data 数据
+   */
+  async save(data) {
+    this.saveFile(data);
+    this.createSchedule(data);
+    return new Response(true);
   }
 }
 

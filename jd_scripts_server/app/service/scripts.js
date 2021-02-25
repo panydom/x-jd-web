@@ -8,6 +8,7 @@ const readline = require('readline');
 const dotenv = require('dotenv');
 const Writeable = require('stream').Writable;
 const Response = require('../common/Response.js');
+const { requireJSON } = require('../common/utils.js');
 
 class ScriptsService extends Service {
   async readFile(file) {
@@ -28,7 +29,7 @@ class ScriptsService extends Service {
   async list() {
     try {
       const config = this.config;
-      const cronList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'docker/crontab_list.sh'));
+      // const cronList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'docker/crontab_list.sh'));
       const scriptsList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'README.md'));
 
       const list = [];
@@ -69,8 +70,7 @@ class ScriptsService extends Service {
   async getEnvFile() {
     const { config } = this;
     const envFilePath = path.join(config.baseDir, 'env.json');
-    const data = require(envFilePath);
-    delete require.cache[require.resolve(envFilePath)];
+    const data = requireJSON(envFilePath);
     return new Response(data);
   }
 
@@ -120,7 +120,9 @@ class ScriptsService extends Service {
       shell.stdout.on('end', () => {
         this.app.taskList = this.service.scripts.deleteTask(scriptName);
       });
-      shell.stdout.pipe(fs.createWriteStream(logFile));
+      const stream = fs.createWriteStream(logFile);
+      shell.stderr.pipe(stream);
+      shell.stdout.pipe(stream);
       tasks.push({
         scriptName,
         shell,
@@ -159,6 +161,20 @@ class ScriptsService extends Service {
       }
     }).then(data => new Response(data));
 
+  }
+
+  async deleteLogs() {
+    const dir = this.app.config.SCRIPTS_LOGS;
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+      fs.rmSync(path.join(dir, file));
+    }
+    return new Response(true);
+  }
+
+  async content(filename) {
+    const content = fs.readFileSync(path.join(this.config.scriptsDir, filename));
+    return new Response(content.toString());
   }
 
 }

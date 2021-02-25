@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "update": "./scripts/update.sh",
-    "postinstall": "./scripts/postinstall.sh",
-    "dev": "./scripts/dev.sh"
+    "postinstall": "./scripts/postinstall.sh"
   },
   "keywords": [],
   "author": "",

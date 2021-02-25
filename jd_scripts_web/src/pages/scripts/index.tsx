@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback,useEffect, useRef } from 'react';
-import { Table, Tooltip, message, Button } from 'antd';
+import { Table, Tooltip, message, Button, Modal, Spin } from 'antd';
 import { PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons';
 import request from '@/request'
 import Layout from '@/layouts'
@@ -11,10 +11,15 @@ import Log from './Log';
 export default function Scripts () {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  // const [deleting, setDeleting] = useState(false);
   // 获取任务列表
   const [taskList, setTaskList] = useState([] as any[]);
   const timer = useRef<NodeJS.Timeout>();
+  const [visible, setVisible] = useState(false);
+  const [content, setContent] = useState('');
+  const title = useRef()
+  const [contentLoading, setContentLoading] = useState(false);
+
   const getTaskList = useCallback(async () => {
    const { data } = await request.get('/task')
    setTaskList(data)
@@ -81,6 +86,19 @@ export default function Scripts () {
     return running ? styles.running : ''
   }, [taskList]);
 
+  // 查看文件内容
+  const showContent = useCallback(async (filename) => {
+    setVisible(true);
+    setContentLoading(true);
+    try{
+      const { data } = await request.get(`/script/${filename}`);
+      title.current = filename
+      setContent(data);
+    }finally{
+      setContentLoading(false);
+    }
+  }, []);
+
   const columns = useMemo(() => {
     return [
       {
@@ -102,13 +120,15 @@ export default function Scripts () {
         title: "脚本地址",
         dataIndex: 'filepath',
         key: 'filepath',
-        render: (text: string) => <Link value={text} label="查看脚本" />
+        render: (text: string, record: any) => {
+          return <Button type='link' onClick={() => showContent(record.filename)}>查看脚本</Button>
+        }
       },
       {
         title: "活动地址",
         dataIndex: 'address',
         key: 'address',
-        render: (text: string) => <Link value={text} label="活动地址" />
+        render: (text: string) => <Link value={text} label="活动地址" target="_blank" />
       },
       {
         title: "操作",
@@ -128,10 +148,35 @@ export default function Scripts () {
       setLoading(false)
     }
   });
+
+  // const deleteLog = useCallback(async () => {
+  //   setDeleting(true);
+  //   try{
+  //     await request.delete('/logs')
+  //   }finally{
+  //     setDeleting(false);
+  //   }
+  // }, []);
   return (
     <Layout>
-      <p>当前有{taskList.length}个运行中的脚本（{taskList.map(t => <Button key={t} type="link">{t}</Button>)}）</p>
-      <Table columns={columns} dataSource={data} rowKey='filename' bordered pagination={false} loading={loading} rowClassName={rowClassName} />
+      <div className={styles.header}>
+        <p style={{ margin: 0 }}>当前有{taskList.length}个运行中的脚本（{taskList.map(t => <Button key={t} type="link">{t}</Button>)}）</p>
+        {/* <Button danger type="primary" onClick={deleteLog} loading={deleting}>删除所有日志</Button> */}
+      </div>
+      <Table columns={columns} dataSource={data} rowKey='filename' bordered pagination={false} loading={loading} rowClassName={rowClassName} style={{ marginTop: 12 }} />
+      <Modal
+        title={`${title.current}文件内容`}
+        visible={visible}
+        onOk={() => setVisible(false)}
+        onCancel={() => setVisible(false)}
+        okText="确认"
+        cancelText="取消"
+        width='80vw'
+      >
+        <Spin spinning={contentLoading} >
+          <pre style={{width: '100%', height: '60vh'}}>{content}</pre>
+        </Spin>
+      </Modal>
     </Layout>
   )
 }

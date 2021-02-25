@@ -32,3 +32,9 @@ exports.buildEnv = function buildEnv(data) {
   }
   writeStream.end();
 };
+
+exports.requireJSON = function requireJSON(path) {
+  const data = require(path);
+  delete require.cache[require.resolve(path)];
+  return data;
+};
