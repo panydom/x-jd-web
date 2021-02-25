@@ -25,7 +25,7 @@ SCRIPTS_WORKSPACE=${NODE_MODULES_DIR}/${SCRIPTS_PACKAGE_NAME}
 #   npm i $SCRIPTS_GIT_URL
 # fi
 
-if [ $APP_ENV == 'heroku' ]
+if [ '$APP_ENV' == 'heroku' ]
 then
   export GIT_SSH_COMMAND='ssh -i ./jd_id_rsa' 
 else
