@@ -155,6 +155,7 @@ class ScriptsService extends Service {
         shell.stdout.pipe(writeStream);
         shell.stdout.on('close', () => {
           resolve(content);
+          shell = null;
         });
       } else {
         resolve(content);
@@ -172,9 +173,24 @@ class ScriptsService extends Service {
     return new Response(true);
   }
 
+  // 获取脚本文件内容
   async content(filename) {
     const content = fs.readFileSync(path.join(this.config.scriptsDir, filename));
     return new Response(content.toString());
+  }
+
+  async update() {
+    return new Promise(resolve => {
+      const ROOT = path.join(this.config.baseDir, '../');
+      let shell = execa.command('npm run update', {
+        cwd: ROOT,
+      });
+      // shell.stdout.pipe(process.stdout);
+      shell.stdout.once('end', () => {
+        shell = null;
+        resolve(true);
+      });
+    }).then(success => new Response(success));
   }
 
 }

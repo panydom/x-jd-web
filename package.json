@@ -1,20 +1,22 @@
 {
-  "name": "test-jd",
+  "name": "x-jd-scripts",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
+    "start": "./scripts/start.sh",
+    "stop": "./scripts/stop.sh",
+    "restart": "npm run stop && npm start",
     "update": "./scripts/update.sh",
-    "postinstall": "./scripts/postinstall.sh"
+    "postinstall": "./scripts/postinstall.sh",
+    "dev": "concurrently 'npm run dev:web' 'npm run dev:server'",
+    "dev:web": "cd jd_scripts_web && npm start",
+    "dev:server": "cd jd_scripts_server && npm run dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
-  "egg": {
-    "declarations": true
-  },
   "dependencies": {
-    "LXK9301": "git+ssh://git@gitee.com:lxk0301/jd_scripts.git"
+    "concurrently": "^6.0.0"
   },
   "engines": {
     "node": ">=10.0.0"

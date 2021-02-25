@@ -1,5 +1,6 @@
 'use strict';
-
+const path = require('path');
+const fs = require('fs');
 /**
  * @param {Egg.Application} app - egg application
  */
@@ -19,6 +20,9 @@ module.exports = app => {
   router.get('/api/getLog', controller.scripts.getLog);
   router.delete('/api/logs', controller.scripts.deleteLogs);
 
+  // 更新脚本
+  router.get('/api/update', controller.scripts.update);
+
 
   // 获取用户列表
   router.get('/api/users', controller.users.getUsers);
@@ -35,4 +39,9 @@ module.exports = app => {
   // 定时任务
   router.get('/api/cron/file', controller.cron.file);
   router.post('/api/cron/file', controller.cron.saveFile);
+
+  router.get('*', ctx => {
+    ctx.type = 'html';
+    ctx.body = fs.createReadStream(path.join(app.config.static.dir, 'web', 'index.html'));
+  });
 };

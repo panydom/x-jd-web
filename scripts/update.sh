@@ -3,8 +3,9 @@
 # 更新jd_scripts
 
 # npm i git+https://gitee.com/zixing/jd_scripts.git#master
-ROOT_DIR=$(pwd)
 # SCRIPTS_GIT_URL=git+https://gitee.com/zixing/jd_scripts.git#master
+
+ROOT_DIR=$(pwd)
 NODE_MODULES_DIR=${ROOT_DIR}/node_modules
 if [ ! -e $NODE_MODULES_DIR ]
 then
@@ -24,9 +25,12 @@ SCRIPTS_WORKSPACE=${NODE_MODULES_DIR}/${SCRIPTS_PACKAGE_NAME}
 #   npm i $SCRIPTS_GIT_URL
 # fi
 
+rm ~/.ssh/jd_id_rsa
 cp ./jd_id_rsa ~/.ssh/jd_id_rsa
 chmod 600 ~/.ssh/jd_id_rsa
-GIT_SSH_COMMAND='ssh -i ~/.ssh/jd_id_rsa' npm install git+ssh://git@gitee.com:lxk0301/jd_scripts.git
+
+export GIT_SSH_COMMAND='ssh -i ~/.ssh/jd_id_rsa' 
+npm install --no-asve git+ssh://git@gitee.com:lxk0301/jd_scripts.git
 
 # wget https://gitee.com/zixing/jd_scripts/raw/master/jdCookie.js -O $SCRIPTS_WORKSPACE/jdCookie.js
 

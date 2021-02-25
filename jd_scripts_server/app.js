@@ -34,16 +34,19 @@ class AppBootHook {
 
   configWillLoad() {
     this.createLogs();
+    // 创建env.json
     this.createEnv();
   }
 
   async didLoad() {
+    // 创建.env
     buildEnv();
   }
 
   // 应用启动完成
   async serverDidReady() {
     const ctx = await this.app.createAnonymousContext();
+    // 创建cron.json
     ctx.service.cron.initCron();
   }
 }

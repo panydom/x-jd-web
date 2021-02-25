@@ -1,12 +1,16 @@
 import { defineConfig } from 'umi';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+const publicPath = isProduction ? '/web/' : '/'
+
 export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
   layout:{
     title: "jd_scripts_web",
-    logo: '/logo.svg',
+    logo: `${publicPath}logo.svg`,
     siderWidth: 200,
   },
   routes: [
@@ -33,7 +37,7 @@ export default defineConfig({
     },
   ],
   fastRefresh: {},
-  favicon: '/logo.svg',
+  favicon: `${publicPath}logo.svg`,
   proxy:{
     '/dev':{
       target: "http://127.0.0.1:7001",
@@ -45,4 +49,5 @@ export default defineConfig({
     dark: true,
     compact: true,
   },
+  publicPath,
 });

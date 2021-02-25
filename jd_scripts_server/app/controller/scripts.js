@@ -47,6 +47,10 @@ class ScriptsController extends Controller {
     this.ctx.body = await this.service.scripts.content(filename);
   }
 
+  async update() {
+    this.ctx.body = await this.service.scripts.update();
+  }
+
 }
 
 module.exports = ScriptsController;

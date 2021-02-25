@@ -1,7 +1,6 @@
 import request, { extend } from 'umi-request';
 import { message } from 'antd';
-const devPrefix = '/dev'
-
+const devPrefix = 'production' === process.env.NODE_ENV ? '' : '/dev'
 const instance = extend({
   prefix: `${devPrefix}/api`,
   credentials: 'include',

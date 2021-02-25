@@ -12,6 +12,7 @@ export default function Scripts () {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   // const [deleting, setDeleting] = useState(false);
+  const [updating, setUpdating] = useState(false);
   // 获取任务列表
   const [taskList, setTaskList] = useState([] as any[]);
   const timer = useRef<NodeJS.Timeout>();
@@ -20,6 +21,12 @@ export default function Scripts () {
   const title = useRef()
   const [contentLoading, setContentLoading] = useState(false);
 
+  const getScripts = useCallback(async () => {
+    const { data: list } = await request.get('/list')
+    setData(list)
+  }, []);
+
+  // 获取任务列表
   const getTaskList = useCallback(async () => {
    const { data } = await request.get('/task')
    setTaskList(data)
@@ -140,8 +147,7 @@ export default function Scripts () {
   }, [renderOp]);
   useDidMount(async () => {
     try{
-      const { data: list } = await request.get('/list')
-      setData(list)
+      getScripts()
       getTaskList();
     }
     finally{
@@ -157,11 +163,24 @@ export default function Scripts () {
   //     setDeleting(false);
   //   }
   // }, []);
+
+  const update = useCallback(async () => {
+    setUpdating(true);
+    try{
+      await request.get('/update')
+      message.success('更新成功');
+      getScripts();
+    }finally{
+      setUpdating(false);
+    }
+  }, []);
+
   return (
     <Layout>
       <div className={styles.header}>
         <p style={{ margin: 0 }}>当前有{taskList.length}个运行中的脚本（{taskList.map(t => <Button key={t} type="link">{t}</Button>)}）</p>
         {/* <Button danger type="primary" onClick={deleteLog} loading={deleting}>删除所有日志</Button> */}
+        <Button type="primary" onClick={update} loading={updating}>更新LXK9301仓库</Button>
       </div>
       <Table columns={columns} dataSource={data} rowKey='filename' bordered pagination={false} loading={loading} rowClassName={rowClassName} style={{ marginTop: 12 }} />
       <Modal
