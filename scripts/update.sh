@@ -25,11 +25,16 @@ SCRIPTS_WORKSPACE=${NODE_MODULES_DIR}/${SCRIPTS_PACKAGE_NAME}
 #   npm i $SCRIPTS_GIT_URL
 # fi
 
-rm ~/.ssh/jd_id_rsa
-cp ./jd_id_rsa ~/.ssh/jd_id_rsa
-chmod 600 ~/.ssh/jd_id_rsa
+if [ $APP_ENV == 'heroku' ]
+then
+  export GIT_SSH_COMMAND='ssh -i ./jd_id_rsa' 
+else
+  rm ~/.ssh/jd_id_rsa
+  cp ./jd_id_rsa ~/.ssh/jd_id_rsa
+  chmod 600 ~/.ssh/jd_id_rsa
 
-export GIT_SSH_COMMAND='ssh -i ~/.ssh/jd_id_rsa' 
+  export GIT_SSH_COMMAND='ssh -i ~/.ssh/jd_id_rsa' 
+fi
 npm install --no-asve git+ssh://git@gitee.com:lxk0301/jd_scripts.git
 
 # wget https://gitee.com/zixing/jd_scripts/raw/master/jdCookie.js -O $SCRIPTS_WORKSPACE/jdCookie.js
