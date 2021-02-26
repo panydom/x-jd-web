@@ -7,4 +7,4 @@ npm i --force
 
 cd ../jd_scripts_server
 
-npm i --force
+npm i --legacy-peer-deps
