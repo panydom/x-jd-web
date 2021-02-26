@@ -1,9 +1,9 @@
 #! /usr/bin/env bash
 # ./scripts/update.sh
 
-cd ./jd_scripts_web
+# cd ./jd_scripts_web
 
-npm i --force
+# npm i --force
 
 cd ../jd_scripts_server
 
