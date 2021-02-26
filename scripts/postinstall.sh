@@ -3,8 +3,8 @@
 
 cd ./jd_scripts_web
 
-npm i
+npm i --force
 
 cd ../jd_scripts_server
 
-npm i 
+npm i --force
