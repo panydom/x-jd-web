@@ -37,7 +37,7 @@ export GIT_SSH_COMMAND='ssh -i ./jd_id_rsa'
 
 #   export GIT_SSH_COMMAND='ssh -i ~/.ssh/jd_id_rsa' 
 # fi
-git clone --depth=1 ssh://git@gitee.com:lxk0301/jd_scripts.git 
+git clone --depth=1 git@gitee.com:lxk0301/jd_scripts.git 
 # npm install --no-save git+ssh://git@gitee.com:lxk0301/jd_scripts.git
 
 # cp ./jdCookie.js $SCRIPTS_WORKSPACE/jdCookie.js
