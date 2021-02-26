@@ -11,7 +11,7 @@ lerna-debug.log*
 **/public/web
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
+jd_scripts
 # Runtime data
 pids
 *.pid

@@ -15,9 +15,6 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "dependencies": {
-    
-  },
   "devDependencies": {
     "concurrently": "^6.0.0"
   },

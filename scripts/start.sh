@@ -6,4 +6,8 @@
 
 cd jd_scripts_server
 
+echo 'title >> '$title
+
+echo 'port >> '$port
+
 npx egg-scripts start --port=$port --daemon --title=$title
