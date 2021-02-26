@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 # ./scripts/update.sh
-
+npm run update
 # cd ./jd_scripts_web
 
 # npm i --force
