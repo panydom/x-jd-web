@@ -12,4 +12,4 @@ echo 'port >> '$port
 
 echo 'APP_ENV >> '$APP_ENV
 
-npx egg-scripts start --port=$port --daemon --title=$title
+npx egg-scripts start --port=$port --title=$title
