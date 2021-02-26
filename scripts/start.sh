@@ -12,4 +12,14 @@ echo 'port >> '$port
 
 echo 'APP_ENV >> '$APP_ENV
 
-npx egg-scripts start --port=$port --title=$title
+
+serv_port=
+
+if [ ! $PORT ]; then
+  serv_port=$port
+else
+  serv_port=$PORT
+fi
+echo '$serv_port >> '$serv_port
+
+npx egg-scripts start --port=$serv_port --title=$title
