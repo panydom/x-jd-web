@@ -5,6 +5,6 @@
 
 # npm i --force
 
-cd ../jd_scripts_server
+cd ./jd_scripts_server
 
 npm i --legacy-peer-deps
