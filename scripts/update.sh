@@ -37,6 +37,7 @@ export GIT_SSH_COMMAND='ssh -i ./jd_id_rsa'
 
 #   export GIT_SSH_COMMAND='ssh -i ~/.ssh/jd_id_rsa' 
 # fi
+echo $GIT_SSH_COMMAND
 GIT_SSH_COMMAND='ssh -i ./jd_id_rsa' npm install --no-save git+ssh://git@gitee.com:lxk0301/jd_scripts.git
 
 # wget https://gitee.com/zixing/jd_scripts/raw/master/jdCookie.js -O $SCRIPTS_WORKSPACE/jdCookie.js
