@@ -23,5 +23,6 @@
   },
   "ci": {
     "version": "10"
-  }
+  },
+  "dependencies": {}
 }

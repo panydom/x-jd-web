@@ -23,8 +23,8 @@ class AppBootHook {
     this.app.config.SCRIPTS_LOGS = SCRIPTS_LOGS;
   }
 
+  // 配置文件
   createEnv() {
-    // 配置文件
     const EnvFile = path.join(this.app.baseDir, 'env.json');
     if (!fs.existsSync(EnvFile)) {
       const EnvFileBak = path.join(this.app.baseDir, 'env.json.bak');
@@ -33,9 +33,12 @@ class AppBootHook {
   }
 
   configWillLoad() {
+    this.app.config.LXK9301_installed = fs.existsSync(path.join(this.app.baseDir,'../node_modules/LXK9301', 'README.md'))
     this.createLogs();
-    // 创建env.json
-    this.createEnv();
+    if(this.app.config.LXK9301_installed){
+      // 创建env.json
+      this.createEnv();
+    }
   }
 
   async didLoad() {
@@ -45,9 +48,11 @@ class AppBootHook {
 
   // 应用启动完成
   async serverDidReady() {
-    const ctx = await this.app.createAnonymousContext();
-    // 创建cron.json
-    ctx.service.cron.initCron();
+    if(this.app.config.LXK9301_installed) {
+      const ctx = await this.app.createAnonymousContext();
+      // 创建cron.json
+      ctx.service.cron.initCron();
+    }
   }
 }
 
