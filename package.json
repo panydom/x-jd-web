@@ -9,7 +9,7 @@
     "postinstall": "./scripts/postinstall.sh",
     "dev": "concurrently 'npm run dev:web' 'npm run dev:server'",
     "dev:web": "cd jd_scripts_web && npm start",
-    "dev:server": "cd jd_scripts_server && npm run dev"
+    "dev:server": "cp .env.bak .env && cd jd_scripts_server && npm run dev"
   },
   "keywords": [],
   "author": "",

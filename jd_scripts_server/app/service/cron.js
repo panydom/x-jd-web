@@ -38,6 +38,8 @@ class CronService extends Service {
       const data = requireJSON(customCronFile);
       await this.createSchedule(data);
     }
+    // 开启更新的任务
+    this.app.LXK9301_update = new BaseCron('update.sh', '* */2 * * *', this.ctx);
   }
 
   // 创建cron.json文件
@@ -102,7 +104,7 @@ class CronService extends Service {
       this.app[CRON_INSTANCE].length = 0;
     }
     const crons = [];
-    for (const { filename, cron } of data.slice(1, 2)) {
+    for (const { filename, cron } of data) {
       crons.push(new BaseCron(filename, cron, this.ctx));
     }
     this.app[CRON_INSTANCE] = crons;

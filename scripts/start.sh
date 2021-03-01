@@ -1,6 +1,8 @@
 #! /usr/bin/env bash
 
- ./scripts/build_web.sh
+cp .env.bak .env
+
+./scripts/build_web.sh
 
 . ./scripts/egg.sh
 

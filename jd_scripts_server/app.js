@@ -3,6 +3,8 @@ const { buildEnv } = require('./app/common/utils');
 const fs = require('fs');
 const path = require('path');
 const execa = require('execa');
+
+const appEnv = require('./config/env');
 class AppBootHook {
   constructor(app) {
     this.app = app;
@@ -23,7 +25,7 @@ class AppBootHook {
     this.app.config.SCRIPTS_LOGS = SCRIPTS_LOGS;
   }
 
-  // 配置文件
+  // 配置scripts项目的文件
   createEnv() {
     const EnvFile = path.join(this.app.baseDir, 'env.json');
     if (!fs.existsSync(EnvFile)) {
@@ -33,9 +35,9 @@ class AppBootHook {
   }
 
   configWillLoad() {
-    this.app.config.LXK9301_installed = fs.existsSync(path.join(this.app.baseDir,'../node_modules/LXK9301', 'README.md'))
+    this.app.config.LXK9301_installed = fs.existsSync(path.join(this.app.baseDir, '../node_modules/LXK9301', 'README.md'));
     this.createLogs();
-    if(this.app.config.LXK9301_installed){
+    if (this.app.config.LXK9301_installed) {
       // 创建env.json
       this.createEnv();
     }
@@ -48,10 +50,14 @@ class AppBootHook {
 
   // 应用启动完成
   async serverDidReady() {
-    if(this.app.config.LXK9301_installed) {
-      const ctx = await this.app.createAnonymousContext();
+    const ctx = await this.app.createAnonymousContext();
+    if (this.app.config.LXK9301_installed) {
       // 创建cron.json
       ctx.service.cron.initCron();
+    }
+
+    if (appEnv.INSTALL_SCRIPTS_ON_START === 'true') {
+      ctx.service.scripts.update();
     }
   }
 }

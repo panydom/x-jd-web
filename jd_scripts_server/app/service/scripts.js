@@ -30,7 +30,7 @@ class ScriptsService extends Service {
   async list() {
     try {
       const config = this.config;
-      if(!config.LXK9301_installed) return new Response([])
+      if (!config.LXK9301_installed) return new Response([]);
       // const cronList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'docker/crontab_list.sh'));
       const scriptsList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'README.md'));
 
@@ -195,31 +195,31 @@ class ScriptsService extends Service {
       const ROOT = path.join(this.config.baseDir, '../');
       let shell = execa.command('npm run update', {
         cwd: ROOT,
-        env:{
-          platform: os.platform()
-        }
+        env: {
+          platform: os.platform(),
+        },
       });
       let installError = false;
-      const logStream = fs.createWriteStream(path.join(this.config.SCRIPTS_LOGS, 'update.log'))
+      const logStream = fs.createWriteStream(path.join(this.config.SCRIPTS_LOGS, 'update.log'));
       shell.stdout.pipe(logStream);
       shell.stdout.once('end', () => {
         shell = null;
-        if(!installError){
-           // 如果之前没有安装
-          if(!this.app.config.LXK9301_installed) {
+        if (!installError) {
+          // 如果之前没有安装
+          if (!this.app.config.LXK9301_installed) {
             // 执行app.js中的相同处理
-            this.createEnv()
+            this.createEnv();
             // 开启定时任务
             this.service.cron.initCron();
           }
         }
         resolve(true);
       });
-      shell.stderr.pipe(logStream)
+      shell.stderr.pipe(logStream);
 
       logStream.on('data', () => {
-        installError = true
-      })
+        installError = true;
+      });
       // resolve(true)
     }).then(success => new Response(success));
   }
