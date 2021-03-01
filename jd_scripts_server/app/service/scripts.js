@@ -9,7 +9,7 @@ const dotenv = require('dotenv');
 const Writeable = require('stream').Writable;
 const Response = require('../common/Response.js');
 const os = require('os');
-const { requireJSON } = require('../common/utils.js');
+const { requireJSON, createEnv } = require('../common/utils.js');
 
 class ScriptsService extends Service {
   async readFile(file) {
@@ -28,9 +28,9 @@ class ScriptsService extends Service {
   }
   // 获取脚本列表
   async list() {
+    const config = this.config;
+    if (!config.LXK9301_installed) return new Response([]);
     try {
-      const config = this.config;
-      if (!config.LXK9301_installed) return new Response([]);
       // const cronList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'docker/crontab_list.sh'));
       const scriptsList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'README.md'));
 
@@ -184,10 +184,8 @@ class ScriptsService extends Service {
   // 配置文件
   createEnv() {
     const EnvFile = path.join(this.app.baseDir, 'env.json');
-    if (!fs.existsSync(EnvFile)) {
-      const EnvFileBak = path.join(this.app.baseDir, 'env.json.bak');
-      execa('cp', [ EnvFileBak, EnvFile ]);
-    }
+    const EnvFileBak = path.join(this.app.baseDir, 'env.json.bak');
+    createEnv(EnvFileBak, EnvFile)
   }
 
   async update() {
@@ -207,6 +205,7 @@ class ScriptsService extends Service {
         if (!installError) {
           // 如果之前没有安装
           if (!this.app.config.LXK9301_installed) {
+            this.app.config.LXK9301_installed = true;
             // 执行app.js中的相同处理
             this.createEnv();
             // 开启定时任务

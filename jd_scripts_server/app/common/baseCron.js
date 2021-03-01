@@ -15,7 +15,7 @@ class BaseCron {
     const nextTick = this.getNextTick();
     if (nextTick) {
       if (nextTick > TimeoutOverflow) {
-        this.checkNextTick();
+        this.checkNextTick(nextTick % TimeoutOverflow);
       } else {
         console.log(`开启定时任务${this.filename},${parseInt(nextTick / 1000)}秒后执行`);
         this.timer = setTimeout(() => this.task(), nextTick);
@@ -24,8 +24,8 @@ class BaseCron {
     return this;
   }
 
-  checkNextTick() {
-    setTimeout(() => this.start(), 1000);
+  checkNextTick(time) {
+    setTimeout(() => this.start(), time);
   }
 
   stop() {

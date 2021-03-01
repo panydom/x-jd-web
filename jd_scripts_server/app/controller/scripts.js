@@ -10,7 +10,6 @@ const booleanMap = new Map([
 class ScriptsController extends Controller {
   async list() {
     const { app, ctx } = this;
-
     ctx.body = await this.service.scripts.list();
   }
 

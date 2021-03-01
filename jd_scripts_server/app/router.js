@@ -6,6 +6,7 @@ const fs = require('fs');
  */
 module.exports = app => {
   const { router, controller } = app;
+
   router.get('/api/list', controller.scripts.list);
   // 查看脚本内容
   router.get('/api/script/:filename', controller.scripts.content);
