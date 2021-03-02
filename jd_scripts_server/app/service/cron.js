@@ -39,7 +39,7 @@ class CronService extends Service {
     //   await this.createSchedule(data);
     // }
     // 开启更新的任务
-    this.app.LXK9301_update = new BaseCron('update.sh', '* */2 * * *', this.ctx);
+    this.app.LXK9301_update = new BaseCron('update.sh', '0 */2 * * *', this.ctx);
   }
 
   // 创建cron.json文件

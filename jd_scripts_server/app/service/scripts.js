@@ -107,6 +107,10 @@ class ScriptsService extends Service {
 
   // 运行任务
   async runScript(scriptName, run = true) {
+    if (scriptName === 'update.sh') {
+      this.update();
+      return;
+    }
     let tasks = this.app.taskList || [];
     if (run) {
       const file = path.join(this.config.scriptsDir, scriptName);
@@ -185,7 +189,7 @@ class ScriptsService extends Service {
   createEnv() {
     const EnvFile = path.join(this.app.baseDir, 'env.json');
     const EnvFileBak = path.join(this.app.baseDir, 'env.json.bak');
-    createEnv(EnvFileBak, EnvFile)
+    createEnv(EnvFileBak, EnvFile);
   }
 
   async update() {
