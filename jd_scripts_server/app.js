@@ -42,7 +42,7 @@ class AppBootHook {
 
   async didLoad() {
     // 创建.env
-    buildEnv();
+    // buildEnv();
   }
 
   // 应用启动完成

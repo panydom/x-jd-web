@@ -7,7 +7,7 @@ const path = require('path');
  * 根据env.json文件构建环境变量.env
  * @param data
  */
-exports.buildEnv = function buildEnv(data) {
+const buildEnv = exports.buildEnv = function buildEnv(data) {
   const env = data || require('../../env.json');
   const writeStream = fs.createWriteStream(path.join(__dirname, '../../.env'));
   for (const config of env) {
@@ -70,4 +70,5 @@ exports.createEnv = function(bakFile, envFile) {
       fs.writeFileSync(envFile, JSON.stringify(newEnvData, null, ' '));
     }
   }
+  buildEnv()
 }
