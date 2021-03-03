@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "scripts": {
     "start": "./scripts/start.sh",
+    "start:build": "./scripts/start.sh --build-web",
     "stop": "./scripts/stop.sh",
     "restart": "npm run stop && npm start",
     "update": "./scripts/update.sh",
+    "build": "./scripts/build_web.sh",
     "postinstall": "./scripts/postinstall.sh",
     "dev": "concurrently 'npm run dev:web' 'npm run dev:server'",
     "dev:web": "cd jd_scripts_web && npm start",
-    "dev:server": "cp .env.bak .env && cd jd_scripts_server && npm run dev"
+    "dev:server": "cd jd_scripts_server && npm run dev"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +26,10 @@
   "ci": {
     "version": "10"
   },
-  "dependencies": {}
+  "dependencies": {
+    "dotenv": "^8.2.0"
+  },
+  "config": {
+    "unsafe-perm": true
+  }
 }

@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const fs = require('fs');
+const config = require('../../config/env');
 /**
  * @param {Egg.Application} app - egg application
  */
@@ -43,6 +44,6 @@ module.exports = app => {
 
   router.get('*', ctx => {
     ctx.type = 'html';
-    ctx.body = fs.createReadStream(path.join(app.config.static.dir, 'web', 'index.html'));
+    ctx.body = fs.createReadStream(path.join(app.config.static.dir, config.PUBLIC_PATH, 'index.html'));
   });
 };

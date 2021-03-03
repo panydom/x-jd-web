@@ -72,7 +72,7 @@ npm run stop
 npm run restart
 ```
 
-> 注： 启动时候的参数配置在`scripts/start.sh`中，从`scripts/egg.sh`修改
+> 注： 启动时候的参数配置在`.config`中修改
 
 ### 贡献
 

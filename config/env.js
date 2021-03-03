@@ -3,7 +3,7 @@
 const dotenv = require('dotenv');
 const path = require('path');
 
-const APP_ENV_FILE = path.join(__dirname, '../../', '.env');
+const APP_ENV_FILE = path.join(__dirname, '../', '.config');
 
 const { parsed = {} } = dotenv.config({
   path: APP_ENV_FILE,

@@ -1,10 +1,9 @@
 'use strict';
-const { buildEnv, createEnv } = require('./app/common/utils');
+const { createEnv } = require('./app/common/utils');
 const fs = require('fs');
 const path = require('path');
-const execa = require('execa');
 
-const appEnv = require('./config/env');
+const appEnv = require('../config/env');
 class AppBootHook {
   constructor(app) {
     this.app = app;

@@ -33,7 +33,7 @@ const buildEnv = exports.buildEnv = function buildEnv(data) {
   writeStream.end();
 };
 
-const requireJSON =  exports.requireJSON = function requireJSON(path) {
+const requireJSON = exports.requireJSON = function requireJSON(path) {
   const data = require(path);
   delete require.cache[require.resolve(path)];
   return data;
@@ -43,15 +43,14 @@ const requireJSON =  exports.requireJSON = function requireJSON(path) {
 exports.createEnv = function(bakFile, envFile) {
   if (!fs.existsSync(envFile)) {
     // execa('cp', [ EnvFileBak, EnvFile ]);
-    fs.createReadStream(bakFile).pipe(fs.createWriteStream(envFile))
-  }
-  else {
+    fs.writeFileSync(envFile, fs.readFileSync(bakFile));
+  } else {
     const env = requireJSON(envFile);
     const bak = fs.readFileSync(bakFile);
     // 修改过数据的环境变量
     const envData = env.reduce((data, config) => {
       const fields = config.fields.filter(field => field.value);
-      return [...data, ...fields]
+      return [ ...data, ...fields ];
     }, []);
     if (bak) {
       const bakData = JSON.parse(bak);
@@ -61,14 +60,14 @@ exports.createEnv = function(bakFile, envFile) {
           fields: config.fields.map(field => {
             const oldData = envData.find(data => data.id === field.id);
             if (oldData) {
-              return oldData
+              return oldData;
             }
-            return field
-          })
-        }
+            return field;
+          }),
+        };
       });
       fs.writeFileSync(envFile, JSON.stringify(newEnvData, null, ' '));
     }
   }
-  buildEnv()
-}
+  buildEnv();
+};

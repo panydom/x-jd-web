@@ -1,10 +1,11 @@
 #! /usr/bin/env bash
 
-cp .env.bak .env
+if [ $1 == '--build-web' ]
+then
+  ./scripts/build_web.sh
+fi
 
-./scripts/build_web.sh
-
-. ./scripts/egg.sh
+source .config
 
 cd jd_scripts_server
 
@@ -12,15 +13,6 @@ echo 'title >> '$title
 
 echo 'port >> '$port
 
-serv_port=7801
+# 更多参数查看 https://eggjs.org/zh-cn/core/deployment.html#%E5%90%AF%E5%8A%A8%E5%91%BD%E4%BB%A4
 
-if [ ! -n $PORT ]; then
-  serv_port=$PORT
-elif [ ! -n $port]
-then
-  serv_port=$port
-fi
-
-echo '$serv_port >> '$serv_port
-
-npx egg-scripts start --port=$serv_port --daemon --title=$title
+npx egg-scripts start --port=$port --daemon --title=$title

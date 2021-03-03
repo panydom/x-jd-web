@@ -1,13 +1,17 @@
 import { defineConfig } from 'umi';
+// @ts-ignore
+import env from '../config/env';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-const publicPath = isProduction ? '/web/' : '/'
+const publicPath = isProduction ? `/${env.PUBLIC_PATH}/` : '/'
+const base = isProduction ? `/${env.WEB_PATH}/` : '/'
 
 export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
+  base,
   layout:{
     title: "jd_scripts_web",
     logo: `${publicPath}logo.svg`,
