@@ -45,9 +45,12 @@ const writeJSONSync = exports.writeJSONSync = function writeJSONSync(file, data)
 
 // 创建脚本运行的环境变量脚本
 exports.createEnv = function(bakFile, envFile) {
+  let data = [];
   if (!fs.existsSync(envFile)) {
     // execa('cp', [ EnvFileBak, EnvFile ]);
-    fs.writeFileSync(envFile, fs.readFileSync(bakFile));
+    let dataString = fs.readFileSync(bakFile)
+    data = JSON.parse(dataString)
+    fs.writeFileSync(envFile, dataString);
   } else {
     const env = requireJSON(envFile);
     const bak = fs.readFileSync(bakFile);
@@ -58,7 +61,7 @@ exports.createEnv = function(bakFile, envFile) {
     }, []);
     if (bak) {
       const bakData = JSON.parse(bak);
-      const newEnvData = bakData.map(config => {
+      data = bakData.map(config => {
         return {
           ...config,
           fields: config.fields.map(field => {
@@ -70,8 +73,8 @@ exports.createEnv = function(bakFile, envFile) {
           }),
         };
       });
-      writeJSONSync(envFile, newEnvData);
+      writeJSONSync(envFile, data);
     }
   }
-  buildEnv();
+  buildEnv(data);
 };
