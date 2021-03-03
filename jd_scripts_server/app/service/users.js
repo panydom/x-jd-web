@@ -2,11 +2,10 @@
 
 const Service = require('egg').Service;
 const path = require('path');
-const fs = require('fs');
 const execa = require('execa');
 const Writeable = require('stream').Writable;
 const Response = require('../common/Response.js');
-const { buildEnv } = require('../common/utils.js');
+const { buildEnv, writeJSONSync } = require('../common/utils.js');
 
 class UserService extends Service {
 
@@ -16,10 +15,9 @@ class UserService extends Service {
 
   writeEnvFile(data) {
     return new Promise(resolve => {
-      fs.writeFile(this.jsonfile, JSON.stringify(data, null, ' '), () => {
-        buildEnv(data);
-        resolve();
-      });
+      writeJSONSync(this.jsonfile, data);
+      buildEnv(data);
+      resolve();
     });
 
   }

@@ -50,6 +50,11 @@ class ScriptsController extends Controller {
     this.ctx.body = await this.service.scripts.update();
   }
 
+  async switch() {
+    const { filename, allowRun } = this.ctx.request.body;
+    this.ctx.body = await this.service.scripts.switch(filename, allowRun);
+  }
+
 }
 
 module.exports = ScriptsController;

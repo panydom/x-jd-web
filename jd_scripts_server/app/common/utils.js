@@ -39,6 +39,10 @@ const requireJSON = exports.requireJSON = function requireJSON(path) {
   return data;
 };
 
+const writeJSONSync = exports.writeJSONSync = function writeJSONSync(file, data) {
+  fs.writeFileSync(file, JSON.stringify(data, null, ' '));
+};
+
 // 创建脚本运行的环境变量脚本
 exports.createEnv = function(bakFile, envFile) {
   if (!fs.existsSync(envFile)) {
@@ -66,7 +70,7 @@ exports.createEnv = function(bakFile, envFile) {
           }),
         };
       });
-      fs.writeFileSync(envFile, JSON.stringify(newEnvData, null, ' '));
+      writeJSONSync(envFile, newEnvData);
     }
   }
   buildEnv();

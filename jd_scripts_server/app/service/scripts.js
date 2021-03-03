@@ -9,7 +9,7 @@ const dotenv = require('dotenv');
 const Writeable = require('stream').Writable;
 const Response = require('../common/Response.js');
 const os = require('os');
-const { requireJSON, createEnv } = require('../common/utils.js');
+const { requireJSON, createEnv, writeJSONSync } = require('../common/utils.js');
 
 class ScriptsService extends Service {
   async readFile(file) {
@@ -33,7 +33,7 @@ class ScriptsService extends Service {
     try {
       // const cronList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'docker/crontab_list.sh'));
       const scriptsList = await this.service.scripts.readFile(path.join(config.scriptsDir, 'README.md'));
-
+      const { bannedList } = config;
       const list = [];
       let lock = true;
       for (const line of scriptsList) {
@@ -53,6 +53,7 @@ class ScriptsService extends Service {
             address,
             filename: match[1],
             filepath: match[2],
+            allowRun: !bannedList.includes(match[1]),
           };
 
           if (address && /\[(.*)\]\((.*)\)/.test(address)) {
@@ -111,32 +112,35 @@ class ScriptsService extends Service {
       this.update();
       return;
     }
-    let tasks = this.app.taskList || [];
-    if (run) {
-      const file = path.join(this.config.scriptsDir, scriptName);
-      const logFile = path.join(this.config.SCRIPTS_LOGS, `${scriptName}.log`);
-      const envFile = path.join(this.config.baseDir, '.env');
-      const { parsed = {} } = dotenv.config({
-        path: envFile,
-      });
-      const shell = execa('node', [ file ], {
-        env: parsed,
-        cwd: this.config.scriptsDir,
-      });
-      shell.stdout.on('end', () => {
-        this.app.taskList = this.service.scripts.deleteTask(scriptName);
-      });
-      const stream = fs.createWriteStream(logFile);
-      shell.stderr.pipe(stream);
-      shell.stdout.pipe(stream);
-      tasks.push({
-        scriptName,
-        shell,
-      });
-    } else {
-      tasks = this.service.scripts.deleteTask(scriptName);
+    const { bannedList = [] } = this.config;
+    if (!bannedList.includes(scriptName)) {
+      let tasks = this.app.taskList || [];
+      if (run) {
+        const file = path.join(this.config.scriptsDir, scriptName);
+        const logFile = path.join(this.config.SCRIPTS_LOGS, `${scriptName}.log`);
+        const envFile = path.join(this.config.baseDir, '.env');
+        const { parsed = {} } = dotenv.config({
+          path: envFile,
+        });
+        const shell = execa('node', [ file ], {
+          env: parsed,
+          cwd: this.config.scriptsDir,
+        });
+        shell.stdout.on('end', () => {
+          this.app.taskList = this.service.scripts.deleteTask(scriptName);
+        });
+        const stream = fs.createWriteStream(logFile);
+        shell.stderr.pipe(stream);
+        shell.stdout.pipe(stream);
+        tasks.push({
+          scriptName,
+          shell,
+        });
+      } else {
+        tasks = this.service.scripts.deleteTask(scriptName);
+      }
+      this.app.taskList = tasks;
     }
-    this.app.taskList = tasks;
     return this.service.scripts.getTask();
   }
 
@@ -225,6 +229,26 @@ class ScriptsService extends Service {
       });
       // resolve(true)
     }).then(success => new Response(success));
+  }
+
+  switch(filename, currentAllow) {
+    const { bannedList = [], baseDir } = this.config;
+    let newList = [];
+    if (currentAllow) {
+      newList = [ ...bannedList, filename ].filter(Boolean);
+    } else {
+      if (bannedList.length) {
+        newList = bannedList.reduce((list, name) => {
+          if (filename !== name) {
+            list.push(name);
+          }
+          return list;
+        }, []);
+      }
+    }
+    this.config.bannedList = newList;
+    writeJSONSync(path.join(baseDir, 'config', 'banned_list.json'), newList);
+    return new Response(true);
   }
 
 }

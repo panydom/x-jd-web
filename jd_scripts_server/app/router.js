@@ -24,6 +24,7 @@ module.exports = app => {
 
   // 更新脚本
   router.get('/api/update', controller.scripts.update);
+  router.post('/api/switch', controller.scripts.switch);
 
 
   // 获取用户列表

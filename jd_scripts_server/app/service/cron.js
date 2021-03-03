@@ -4,7 +4,7 @@ const Service = require('egg').Service;
 const path = require('path');
 const fs = require('fs');
 const Response = require('../common/Response.js');
-const { requireJSON } = require('../common/utils');
+const { requireJSON, writeJSONSync } = require('../common/utils');
 const BaseCron = require('../common/baseCron.js');
 const CRON_INSTANCE = Symbol('CRON_INSTANCE');
 class CronService extends Service {
@@ -18,9 +18,8 @@ class CronService extends Service {
    */
   saveFile(data) {
     return new Promise(resolve => {
-      fs.writeFile(this.customCronFile, JSON.stringify(data, null, ' '), async () => {
-        resolve(data);
-      });
+      writeJSONSync(this.customCronFile, data);
+      resolve(data);
     });
   }
 

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback,useEffect, useRef } from 'react';
-import { Table, Tooltip, message, Button, Modal, Spin } from 'antd';
+import { Table, Tooltip, message, Button, Modal, Spin, Switch } from 'antd';
 import { PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons';
 import request from '@/request'
 import Layout from '@/layouts'
@@ -67,23 +67,23 @@ export default function Scripts () {
   }, [taskList]);
 
   const renderOp = useCallback((text, record, index) => {
-    const { filename } = record;
+    const { filename, allowRun } = record;
     const running = taskList.includes(filename);
     return (
-      <>
+      <div style={{ display: 'flex', alignItems: 'center'}}>
         {
           running ? (
             <Tooltip title='停止运行'>
               <PauseCircleFilled className={styles.icon} onClick={() => runScript(filename, false)} />
             </Tooltip>
-          ) :(
+          ) : allowRun ? (
             <Tooltip title='运行脚本'>
               <PlayCircleFilled className={styles.icon} onClick={() => runScript(filename)} />
             </Tooltip>
-          )
+          ) : null
         }
         <Log className={styles.icon} id={filename} running={running} />
-      </>
+      </div>
     )
   }, [taskList, runScript]);
 
@@ -103,6 +103,20 @@ export default function Scripts () {
       setContent(data);
     }finally{
       setContentLoading(false);
+    }
+  }, []);
+
+  // 切换脚本
+  const switchScript = useCallback(async (record) => {
+    const { filename, allowRun } = record
+    const {data: success} = await request.post("/switch", {
+      data: {
+        filename, allowRun
+      }
+    })
+    if(success) {
+      message.success("操作成功")
+      getScripts();
     }
   }, []);
 
@@ -136,6 +150,14 @@ export default function Scripts () {
         dataIndex: 'address',
         key: 'address',
         render: (text: string) => <Link value={text} label="活动地址" target="_blank" />
+      },
+      {
+        title: "开启",
+        dataIndex: 'allow',
+        key: 'allow',
+        render: (text: string, record: any ) => {
+          return  <Switch size="small" checked={record.allowRun} onClick={() => switchScript(record)}  />
+        }
       },
       {
         title: "操作",

@@ -7,13 +7,11 @@ const appEnv = require('../config/env');
 class AppBootHook {
   constructor(app) {
     this.app = app;
-    this.app.config.LXK9301_installed = fs.existsSync(path.join(this.app.baseDir, '../node_modules/LXK9301', 'README.md'));
-
   }
 
   // 创建日志目录
   createLogs() {
-    const SCRIPTS_LOGS = path.join(this.app.baseDir, 'scripts/logs');
+    const SCRIPTS_LOGS = this.app.config.SCRIPTS_LOGS;
     if (!fs.existsSync(SCRIPTS_LOGS)) {
       fs.mkdir(SCRIPTS_LOGS, { recursive: true }, err => {
         if (err) {
@@ -23,14 +21,13 @@ class AppBootHook {
         console.log(`${SCRIPTS_LOGS}创建成功`);
       });
     }
-    this.app.config.SCRIPTS_LOGS = SCRIPTS_LOGS;
   }
 
   // 配置scripts项目的文件
   createEnv() {
     const EnvFile = path.join(this.app.baseDir, 'env.json');
     const EnvFileBak = path.join(this.app.baseDir, 'env.json.bak');
-    createEnv(EnvFileBak, EnvFile)
+    createEnv(EnvFileBak, EnvFile);
   }
 
   configWillLoad() {
