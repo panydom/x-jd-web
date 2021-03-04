@@ -10,3 +10,5 @@ declare module 'qrcode.react';
 declare module '@antd-design/icons';
 declare module 'react-json-editor-ajrm';
 declare module 'react-json-editor-ajrm/locale/en';
+
+declare const CONTEXT_PATH: string;
