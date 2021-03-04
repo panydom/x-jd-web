@@ -1,5 +1,5 @@
 {
-  "name": "x-jd-scripts",
+  "name": "x-jd-web",
   "version": "1.0.0",
   "scripts": {
     "start": "./scripts/start.sh",

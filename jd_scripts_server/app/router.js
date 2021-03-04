@@ -2,11 +2,14 @@
 const path = require('path');
 const fs = require('fs');
 const config = require('../../config/env');
+const isProduction = process.env.NODE_ENV === 'production';
 /**
  * @param {Egg.Application} app - egg application
  */
 module.exports = app => {
-  const { router, controller } = app;
+  const { controller } = app;
+  const subRouter = app.router.namespace(`/${config.CONTEXT_PATH}`);
+  const router = isProduction ? subRouter : app.router;
 
   router.get('/api/list', controller.scripts.list);
   // 查看脚本内容
@@ -45,6 +48,10 @@ module.exports = app => {
 
   router.get('*', ctx => {
     ctx.type = 'html';
-    ctx.body = fs.createReadStream(path.join(app.config.static.dir, config.PUBLIC_PATH, 'index.html'));
+    ctx.body = fs.createReadStream(path.join(app.config.static.dir, config.CONTEXT_PATH, 'index.html'));
+  });
+  app.router.get('*', ctx => {
+    ctx.type = 'html';
+    ctx.body = fs.createReadStream(path.join(app.config.static.dir, config.CONTEXT_PATH, 'index.html'));
   });
 };

@@ -4,8 +4,8 @@ import env from '../config/env';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-const publicPath = isProduction ? `/${env.PUBLIC_PATH}/` : '/'
-const base = isProduction ? `/${env.WEB_PATH}/` : '/'
+const publicPath = isProduction ? `/${env.CONTEXT_PATH}/` : '/'
+const base = isProduction ? `/${env.CONTEXT_PATH}/` : '/'
 
 export default defineConfig({
   nodeModulesTransform: {
@@ -54,4 +54,7 @@ export default defineConfig({
     compact: true,
   },
   publicPath,
+  define: {
+    ...env
+  }
 });
